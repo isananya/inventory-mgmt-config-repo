@@ -17,6 +17,12 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
   cloud:
     openfeign:
       circuitbreaker:
@@ -39,6 +45,13 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
+
+app:
+  queue:
+    invoice: invoice_queue
+    exchange: invoice_exchange
+    routing:
+      generated: invoice.generated
 
 management:
   endpoints:
