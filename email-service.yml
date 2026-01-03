@@ -1,0 +1,37 @@
+server:
+  port: 9093
+
+spring:
+  application:
+    name: email-service
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: flightbookinggg@gmail.com
+    password: yykl fecn nbio rqsx
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+app:
+  queue:
+    booking: order.queue
+
+logging:
+  level:
+    org.springframework.mail: DEBUG
+    org.springframework.amqp: DEBUG
