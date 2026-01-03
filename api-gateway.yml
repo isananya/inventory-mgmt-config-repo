@@ -5,9 +5,6 @@ spring:
   application:
     name: api-gateway
 
-  config:
-    import: optional:configserver:http://localhost:8888
-
   cloud:
     gateway:
       discovery:
@@ -18,17 +15,9 @@ spring:
       globalcors:
         corsConfigurations:
           '[/**]':
-            allowedOrigins:
-              - "http://localhost:4200"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - PATCH
-              - DELETE
-              - OPTIONS
-            allowedHeaders:
-              - "*"
+            allowedOrigins: "http://localhost:4200"
+            allowedMethods: "*"
+            allowedHeaders: "*"
             allowCredentials: true
 
       routes:
@@ -37,195 +26,28 @@ spring:
           predicates:
             - Path=/auth/**
 
-        - id: user-admin
+        - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/user/**
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: ADMIN
 
-        - id: inventory-check-stock
+        - id: inventory-service
           uri: lb://inventory-service
           predicates:
-            - Path=/inventory/check
-            - Method=POST
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE,ADMIN
+            - Path=/inventory/**, /warehouse/**, /products/**, /category/**
 
-        - id: inventory-stock-update
-          uri: lb://inventory-service
-          predicates:
-            - Path=/inventory/stock/**, /inventory/{id}
-            - Method=PUT,PATCH
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: WAREHOUSE_MANAGER,ADMIN
-
-        - id: inventory-low-stock
-          uri: lb://inventory-service
-          predicates:
-            - Path=/inventory/low-stock
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: WAREHOUSE_MANAGER,ADMIN
-
-        - id: inventory-create
-          uri: lb://inventory-service
-          predicates:
-            - Path=/inventory
-            - Method=POST
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: ADMIN
-
-        - id: inventory-view
-          uri: lb://inventory-service
-          predicates:
-            - Path=/inventory/**
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE
-
-        - id: warehouse-manage
-          uri: lb://inventory-service
-          predicates:
-            - Path=/warehouse/**
-            - Method=POST,PUT,PATCH,DELETE
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: ADMIN
-
-        - id: warehouse-view
-          uri: lb://inventory-service
-          predicates:
-            - Path=/warehouse/**
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: ADMIN,WAREHOUSE_MANAGER,SALES_EXECUTIVE
-
-        - id: product-manage
-          uri: lb://inventory-service
-          predicates:
-            - Path=/products/**, /category/**
-            - Method=POST,PUT,PATCH,DELETE
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: ADMIN
-
-        - id: product-view
-          uri: lb://inventory-service
-          predicates:
-            - Path=/products/**, /category/**
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-
-        - id: order-status-update
-          uri: lb://order-service
-          predicates:
-            - Path=/order/*/status
-            - Method=PATCH
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: WAREHOUSE_MANAGER,ADMIN
-
-        - id: order-cancel
-          uri: lb://order-service
-          predicates:
-            - Path=/order/*/cancel
-            - Method=PUT
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE,ADMIN
-
-        - id: order-place
-          uri: lb://order-service
-          predicates:
-            - Path=/order
-            - Method=POST
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE
-
-        - id: order-view-all
-          uri: lb://order-service
-          predicates:
-            - Path=/order
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE,FINANCE_OFFICER
-
-        - id: order-view-specific
+        - id: order-service
           uri: lb://order-service
           predicates:
             - Path=/order/**
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE,WAREHOUSE_MANAGER,ADMIN,FINANCE_OFFICER
 
-        - id: billing-status-update
-          uri: lb://billing-service
-          predicates:
-            - Path=/billing/order/*/status
-            - Method=PATCH
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: FINANCE_OFFICER,ADMIN
-
-        - id: billing-generate
-          uri: lb://billing-service
-          predicates:
-            - Path=/billing/order/**
-            - Method=POST
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE
-
-        - id: billing-view-all
-          uri: lb://billing-service
-          predicates:
-            - Path=/billing
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: FINANCE_OFFICER,ADMIN
-
-        - id: billing-view-specific
+        - id: billing-service
           uri: lb://billing-service
           predicates:
             - Path=/billing/**
-            - Method=GET
-          filters:
-            - name: JwtAuthFilter
-              args:
-                requiredRole: CUSTOMER,SALES_EXECUTIVE,FINANCE_OFFICER,ADMIN
 
 jwt:
-  secret: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+  secret: 5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
 
 eureka:
   client:
