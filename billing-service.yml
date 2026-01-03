@@ -32,7 +32,7 @@ eureka:
 resilience4j:
   circuitbreaker:
     instances:
-      productServiceCB:
+      orderServiceCB:
         register-health-indicator: true
         sliding-window-size: 10
         minimum-number-of-calls: 5
