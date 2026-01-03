@@ -15,18 +15,36 @@ spring:
           enabled: true
           lower-case-service-id: true
       
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
       routes:
         - id: auth-service
           uri: lb://user-service
           predicates:
             - Path=/auth/**
 
-        - id: user
+        - id: user-admin
           uri: lb://user-service
           predicates:
             - Path=/user/**
           filters:
-            - JwtAuthFilter=ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ADMIN
 
         - id: inventory-check-stock
           uri: lb://inventory-service
@@ -34,7 +52,9 @@ spring:
             - Path=/inventory/check
             - Method=POST
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE,ADMIN
 
         - id: inventory-stock-update
           uri: lb://inventory-service
@@ -42,7 +62,9 @@ spring:
             - Path=/inventory/stock/**, /inventory/{id}
             - Method=PUT,PATCH
           filters:
-            - JwtAuthFilter=WAREHOUSE_MANAGER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: WAREHOUSE_MANAGER,ADMIN
 
         - id: inventory-low-stock
           uri: lb://inventory-service
@@ -50,7 +72,9 @@ spring:
             - Path=/inventory/low-stock
             - Method=GET
           filters:
-            - JwtAuthFilter=WAREHOUSE_MANAGER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: WAREHOUSE_MANAGER,ADMIN
 
         - id: inventory-create
           uri: lb://inventory-service
@@ -58,7 +82,9 @@ spring:
             - Path=/inventory
             - Method=POST
           filters:
-            - JwtAuthFilter=ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ADMIN
 
         - id: inventory-view
           uri: lb://inventory-service
@@ -66,7 +92,9 @@ spring:
             - Path=/inventory/**
             - Method=GET
           filters:
-            - JwtAuthFilter=WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE
+            - name: JwtAuthFilter
+              args:
+                requiredRole: WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE
 
         - id: warehouse-manage
           uri: lb://inventory-service
@@ -74,7 +102,9 @@ spring:
             - Path=/warehouse/**
             - Method=POST,PUT,PATCH,DELETE
           filters:
-            - JwtAuthFilter=ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ADMIN
 
         - id: warehouse-view
           uri: lb://inventory-service
@@ -82,7 +112,9 @@ spring:
             - Path=/warehouse/**
             - Method=GET
           filters:
-            - JwtAuthFilter=ADMIN,WAREHOUSE_MANAGER,SALES_EXECUTIVE
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ADMIN,WAREHOUSE_MANAGER,SALES_EXECUTIVE
 
         - id: product-manage
           uri: lb://inventory-service
@@ -90,7 +122,9 @@ spring:
             - Path=/products/**, /category/**
             - Method=POST,PUT,PATCH,DELETE
           filters:
-            - JwtAuthFilter=ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: ADMIN
 
         - id: product-view
           uri: lb://inventory-service
@@ -98,7 +132,7 @@ spring:
             - Path=/products/**, /category/**
             - Method=GET
           filters:
-            - JwtAuthFilter=
+            - name: JwtAuthFilter
 
         - id: order-status-update
           uri: lb://order-service
@@ -106,7 +140,9 @@ spring:
             - Path=/order/*/status
             - Method=PATCH
           filters:
-            - JwtAuthFilter=WAREHOUSE_MANAGER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: WAREHOUSE_MANAGER,ADMIN
 
         - id: order-cancel
           uri: lb://order-service
@@ -114,7 +150,9 @@ spring:
             - Path=/order/*/cancel
             - Method=PUT
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE,ADMIN
 
         - id: order-place
           uri: lb://order-service
@@ -122,7 +160,9 @@ spring:
             - Path=/order
             - Method=POST
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE
 
         - id: order-view-all
           uri: lb://order-service
@@ -130,7 +170,9 @@ spring:
             - Path=/order
             - Method=GET
           filters:
-            - JwtAuthFilter=WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE,FINANCE_OFFICER
+            - name: JwtAuthFilter
+              args:
+                requiredRole: WAREHOUSE_MANAGER,ADMIN,SALES_EXECUTIVE,FINANCE_OFFICER
 
         - id: order-view-specific
           uri: lb://order-service
@@ -138,7 +180,9 @@ spring:
             - Path=/order/**
             - Method=GET
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE,WAREHOUSE_MANAGER,ADMIN,FINANCE_OFFICER
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE,WAREHOUSE_MANAGER,ADMIN,FINANCE_OFFICER
 
         - id: billing-status-update
           uri: lb://billing-service
@@ -146,7 +190,9 @@ spring:
             - Path=/billing/order/*/status
             - Method=PATCH
           filters:
-            - JwtAuthFilter=FINANCE_OFFICER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: FINANCE_OFFICER,ADMIN
 
         - id: billing-generate
           uri: lb://billing-service
@@ -154,7 +200,9 @@ spring:
             - Path=/billing/order/**
             - Method=POST
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE
 
         - id: billing-view-all
           uri: lb://billing-service
@@ -162,7 +210,9 @@ spring:
             - Path=/billing
             - Method=GET
           filters:
-            - JwtAuthFilter=FINANCE_OFFICER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: FINANCE_OFFICER,ADMIN
 
         - id: billing-view-specific
           uri: lb://billing-service
@@ -170,7 +220,9 @@ spring:
             - Path=/billing/**
             - Method=GET
           filters:
-            - JwtAuthFilter=CUSTOMER,SALES_EXECUTIVE,FINANCE_OFFICER,ADMIN
+            - name: JwtAuthFilter
+              args:
+                requiredRole: CUSTOMER,SALES_EXECUTIVE,FINANCE_OFFICER,ADMIN
 
 jwt:
   secret: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
@@ -178,4 +230,4 @@ jwt:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://localhost:8761/eureka/
